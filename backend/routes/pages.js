@@ -13,12 +13,22 @@ const makeSlug = (titulo) =>
 
 router.get('/', authMiddleware, async (req, res) => {
   try {
+    const { Op } = require('sequelize');
+    const where = {
+      [Op.or]: [
+        { estado: 'publicado' },
+        { autor_id: req.user.id },
+        ...(req.user.rol === 'admin' ? [{}] : []),
+      ],
+    };
     const pages = await Page.findAll({
+      where: req.user.rol === 'admin' ? {} : where,
       include: [{ model: User, as: 'autor', attributes: ['id', 'nombre'] }],
       order: [['createdAt', 'DESC']],
     });
     res.json(pages);
-  } catch {
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ error: 'Error del servidor' });
   }
 });
@@ -29,6 +39,8 @@ router.get('/:id', authMiddleware, async (req, res) => {
       include: [{ model: User, as: 'autor', attributes: ['id', 'nombre'] }],
     });
     if (!page) return res.status(404).json({ error: 'Página no encontrada' });
+    if (page.estado !== 'publicado' && page.autor_id !== req.user.id && req.user.rol !== 'admin')
+      return res.status(403).json({ error: 'No tienes acceso a esta página' });
     res.json(page);
   } catch {
     res.status(500).json({ error: 'Error del servidor' });
@@ -45,7 +57,8 @@ router.post('/', authMiddleware, async (req, res) => {
     if (exists) slug = `${slug}-${Date.now()}`;
 
     const page = await Page.create({
-      titulo, contenido, estado: estado || 'borrador',
+      titulo, contenido,
+      estado: estado || 'borrador',
       slug, autor_id: req.user.id, descripcion, url_externa,
     });
     res.status(201).json(page);
