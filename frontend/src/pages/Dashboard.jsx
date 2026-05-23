@@ -12,14 +12,14 @@ const estadoBadge = {
 const StatCard = ({ icon, label, value, gradient, onClick }) => (
   <div
     onClick={onClick}
-    className={`bg-gray-900 border border-gray-800 rounded-2xl p-6 flex items-center gap-4 transition-all ${onClick ? 'cursor-pointer hover:border-purple-500/50 hover:bg-gray-800/50' : ''}`}
+    className={`bg-gray-900 border border-gray-800 rounded-2xl p-4 flex items-center gap-4 transition-all ${onClick ? 'cursor-pointer active:scale-95 hover:border-purple-500/50 hover:bg-gray-800/50' : ''}`}
   >
-    <div className={`w-14 h-14 rounded-xl flex items-center justify-center text-2xl ${gradient}`}>
+    <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl ${gradient}`}>
       {icon}
     </div>
     <div>
-      <p className="text-sm text-gray-500">{label}</p>
-      <p className="text-3xl font-bold text-white">{value ?? '—'}</p>
+      <p className="text-xs text-gray-500">{label}</p>
+      <p className="text-2xl font-bold text-white">{value ?? '—'}</p>
     </div>
   </div>
 );
@@ -55,22 +55,25 @@ export default function Dashboard() {
     p.titulo.toLowerCase().includes(search.toLowerCase())
   );
 
+  const isOwner = (page) => page.autor_id === user.id;
+  const canEdit = (page) => user.rol === 'admin' || isOwner(page);
+
   return (
-    <div className="p-8">
-      <div className="flex items-center justify-between mb-8">
+    <div className="p-4 md:p-8">
+      <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-white">Bienvenido, {user?.nombre} 👋</h2>
-          <p className="text-gray-500 mt-1">Panel de administración del CMS</p>
+          <h2 className="text-xl md:text-2xl font-bold text-white">Bienvenido, {user?.nombre} 👋</h2>
+          <p className="text-gray-500 text-sm mt-1">Panel de administración</p>
         </div>
         <button onClick={() => navigate('/dashboard/pages/new')}
-          className="bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-xl text-sm font-medium transition-colors">
-          + Nueva página
+          className="bg-purple-600 hover:bg-purple-500 active:scale-95 text-white px-3 py-2 rounded-xl text-sm font-medium transition-all">
+          + Nueva
         </button>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
-        <StatCard icon="◈" label="Total Páginas" value={stats.pages}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+        <StatCard icon="◈" label="Páginas" value={stats.pages}
           gradient="bg-purple-500/10 text-purple-400"
           onClick={() => navigate('/dashboard/pages')} />
         <StatCard icon="✦" label="Publicadas" value={stats.published}
@@ -87,31 +90,31 @@ export default function Dashboard() {
       </div>
 
       {/* Accesos rápidos */}
-      <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 mb-6">
-        <h3 className="font-semibold text-white mb-4">Accesos rápidos</h3>
-        <div className="flex flex-wrap gap-3">
+      <div className="bg-gray-900 border border-gray-800 rounded-2xl p-4 mb-4">
+        <h3 className="font-semibold text-white mb-3 text-sm">Accesos rápidos</h3>
+        <div className="flex flex-wrap gap-2">
           <button onClick={() => navigate('/dashboard/pages/new')}
-            className="bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-xl text-sm font-medium transition-colors">
+            className="bg-purple-600 hover:bg-purple-500 active:scale-95 text-white px-3 py-2 rounded-xl text-xs font-medium transition-all">
             + Nueva página
           </button>
           <button onClick={() => navigate('/dashboard/pages')}
-            className="bg-gray-800 hover:bg-gray-700 text-gray-300 px-4 py-2 rounded-xl text-sm font-medium transition-colors">
+            className="bg-gray-800 hover:bg-gray-700 active:scale-95 text-gray-300 px-3 py-2 rounded-xl text-xs font-medium transition-all">
             Ver páginas
           </button>
           {user.rol !== 'lector' && (
             <button onClick={() => navigate('/dashboard/resources')}
-              className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-sm font-medium transition-colors">
-              + Subir recurso
+              className="bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white px-3 py-2 rounded-xl text-xs font-medium transition-all">
+              + Recurso
             </button>
           )}
           {user.rol === 'admin' && (
             <button onClick={() => navigate('/dashboard/users')}
-              className="bg-pink-600 hover:bg-pink-500 text-white px-4 py-2 rounded-xl text-sm font-medium transition-colors">
-              + Nuevo usuario
+              className="bg-pink-600 hover:bg-pink-500 active:scale-95 text-white px-3 py-2 rounded-xl text-xs font-medium transition-all">
+              + Usuario
             </button>
           )}
           <button onClick={() => navigate('/dashboard/profile')}
-            className="bg-gray-800 hover:bg-gray-700 text-gray-300 px-4 py-2 rounded-xl text-sm font-medium transition-colors">
+            className="bg-gray-800 hover:bg-gray-700 active:scale-95 text-gray-300 px-3 py-2 rounded-xl text-xs font-medium transition-all">
             Mi perfil
           </button>
         </div>
@@ -119,12 +122,13 @@ export default function Dashboard() {
 
       {/* Páginas recientes */}
       <div className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
-        <div className="p-4 border-b border-gray-800 flex items-center justify-between gap-4">
-          <h3 className="font-semibold text-white">Páginas recientes</h3>
+        <div className="p-4 border-b border-gray-800 flex items-center justify-between gap-3">
+          <h3 className="font-semibold text-white text-sm shrink-0">Páginas recientes</h3>
           <input type="text" placeholder="Buscar..."
-            className="bg-gray-800 border border-gray-700 text-white rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 placeholder-gray-500 w-64"
+            className="bg-gray-800 border border-gray-700 text-white rounded-xl px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-purple-500 placeholder-gray-500 w-full max-w-xs"
             value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
+
         {filteredPages.length === 0 ? (
           <div className="text-center py-10 text-gray-600">
             <p className="text-3xl mb-2">◈</p>
@@ -135,51 +139,54 @@ export default function Dashboard() {
             </button>
           </div>
         ) : (
-          <table className="w-full">
-            <thead>
-              <tr className="text-left text-xs text-gray-500 uppercase border-b border-gray-800">
-                <th className="px-6 py-3">Título</th>
-                <th className="px-6 py-3">Estado</th>
-                <th className="px-6 py-3">Autor</th>
-                <th className="px-6 py-3">URL</th>
-                <th className="px-6 py-3">Fecha</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredPages.map((page) => (
-                <tr key={page.id} className="border-b border-gray-800 last:border-0 hover:bg-gray-800/50 transition-colors cursor-pointer"
-                  onClick={() => navigate(`/dashboard/pages/edit/${page.id}`)}>
-                  <td className="px-6 py-4">
-                    <p className="font-medium text-white">{page.titulo}</p>
+          <div className="divide-y divide-gray-800">
+            {filteredPages.map((page) => (
+              <div key={page.id} className="p-4 hover:bg-gray-800/50 active:bg-gray-800 transition-colors">
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-white text-sm truncate">{page.titulo}</p>
                     <p className="text-xs text-gray-500 mt-0.5">/{page.slug}</p>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${estadoBadge[page.estado]}`}>
-                      {page.estado}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-400">{page.autor?.nombre || '—'}</td>
-                  <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
-                    {page.url_externa ? (
-                      <a href={page.url_externa} target="_blank" rel="noopener noreferrer"
-                        className="text-purple-400 hover:text-purple-300 text-xs underline underline-offset-2 transition-colors">
-                        Abrir ↗
-                      </a>
-                    ) : (
-                      <span className="text-gray-600 text-xs">—</span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-500">
-                    {new Date(page.createdAt).toLocaleDateString('es-CO')}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  </div>
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium shrink-0 ${estadoBadge[page.estado]}`}>
+                    {page.estado}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-gray-500 mb-3">
+                  <span>{page.autor?.nombre}</span>
+                  <span>·</span>
+                  <span>{new Date(page.createdAt).toLocaleDateString('es-CO')}</span>
+                </div>
+                <div className="flex gap-2 flex-wrap">
+                  {page.url_externa && (
+                    <a href={page.url_externa} target="_blank" rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="text-purple-400 text-xs bg-purple-500/10 border border-purple-500/20 px-3 py-1.5 rounded-lg active:scale-95 transition-all">
+                      Abrir ↗
+                    </a>
+                  )}
+                  {canEdit(page) ? (
+                    <button onClick={() => navigate(`/dashboard/pages/edit/${page.id}`)}
+                      className="text-purple-400 text-xs bg-gray-800 px-3 py-1.5 rounded-lg active:scale-95 transition-all">
+                      Editar
+                    </button>
+                  ) : (
+                    <button onClick={() => navigate('/dashboard/pages')}
+                      className="text-gray-400 text-xs bg-gray-800 px-3 py-1.5 rounded-lg active:scale-95 transition-all">
+                      Ver todas
+                    </button>
+                  )}
+                  <button onClick={() => navigate('/dashboard/pages')}
+                    className="text-gray-500 text-xs px-3 py-1.5 rounded-lg active:scale-95 transition-all">
+                    Ver todas →
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
         )}
         <div className="p-4 border-t border-gray-800">
           <button onClick={() => navigate('/dashboard/pages')}
-            className="text-purple-400 hover:text-purple-300 text-sm transition-colors">
+            className="text-purple-400 hover:text-purple-300 text-sm transition-colors active:scale-95">
             Ver todas las páginas →
           </button>
         </div>
