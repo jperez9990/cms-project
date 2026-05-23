@@ -12,6 +12,7 @@ const Page = sequelize.define('Page', {
   },
   autor_id: { type: DataTypes.INTEGER, allowNull: false },
   descripcion: { type: DataTypes.STRING(500), allowNull: true },
+  url_externa: { type: DataTypes.STRING(500), allowNull: true },
 }, { tableName: 'pages', timestamps: true });
 
 module.exports = Page;

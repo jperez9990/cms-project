@@ -3,6 +3,7 @@ import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
 import Login from './pages/Login';
+import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Pages from './pages/Pages';
 import PageForm from './pages/PageForm';
@@ -16,12 +17,13 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={
             <ProtectedRoute><Layout><Dashboard /></Layout></ProtectedRoute>
           } />
           <Route path="/dashboard/pages" element={
-            <ProtectedRoute roles={['admin', 'editor']}><Layout><Pages /></Layout></ProtectedRoute>
+            <ProtectedRoute><Layout><Pages /></Layout></ProtectedRoute>
           } />
           <Route path="/dashboard/pages/new" element={
             <ProtectedRoute roles={['admin', 'editor']}><Layout><PageForm /></Layout></ProtectedRoute>
