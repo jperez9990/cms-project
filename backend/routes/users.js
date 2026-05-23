@@ -32,13 +32,24 @@ router.post('/', authMiddleware, requireRole('admin'), async (req, res) => {
   }
 });
 
-router.put('/:id', authMiddleware, requireRole('admin'), async (req, res) => {
+router.put('/:id', authMiddleware, async (req, res) => {
   try {
     const user = await User.findByPk(req.params.id);
     if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
 
-    const { nombre, email, rol, activo, password } = req.body;
-    const updateData = { nombre, email, rol, activo };
+    // Solo admin puede editar otros usuarios o cambiar roles
+    if (req.user.rol !== 'admin' && req.user.id !== user.id)
+      return res.status(403).json({ error: 'No tienes permisos para editar este usuario' });
+
+    const { nombre, email, password, rol, activo } = req.body;
+    const updateData = { nombre, email };
+
+    // Solo admin puede cambiar rol y estado
+    if (req.user.rol === 'admin') {
+      if (rol) updateData.rol = rol;
+      if (activo !== undefined) updateData.activo = activo;
+    }
+
     if (password) updateData.password = password;
 
     await user.update(updateData);

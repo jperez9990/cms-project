@@ -10,6 +10,7 @@ import PageForm from './pages/PageForm';
 import Users from './pages/Users';
 import Resources from './pages/Resources';
 import Config from './pages/Config';
+import Profile from './pages/Profile';
 
 function App() {
   return (
@@ -26,10 +27,10 @@ function App() {
             <ProtectedRoute><Layout><Pages /></Layout></ProtectedRoute>
           } />
           <Route path="/dashboard/pages/new" element={
-            <ProtectedRoute roles={['admin', 'editor']}><Layout><PageForm /></Layout></ProtectedRoute>
+            <ProtectedRoute><Layout><PageForm /></Layout></ProtectedRoute>
           } />
           <Route path="/dashboard/pages/edit/:id" element={
-            <ProtectedRoute roles={['admin', 'editor']}><Layout><PageForm /></Layout></ProtectedRoute>
+            <ProtectedRoute><Layout><PageForm /></Layout></ProtectedRoute>
           } />
           <Route path="/dashboard/users" element={
             <ProtectedRoute roles={['admin']}><Layout><Users /></Layout></ProtectedRoute>
@@ -39,6 +40,9 @@ function App() {
           } />
           <Route path="/dashboard/config" element={
             <ProtectedRoute roles={['admin']}><Layout><Config /></Layout></ProtectedRoute>
+          } />
+          <Route path="/dashboard/profile" element={
+            <ProtectedRoute><Layout><Profile /></Layout></ProtectedRoute>
           } />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>

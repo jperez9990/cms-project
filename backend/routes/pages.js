@@ -1,7 +1,7 @@
 const express = require('express');
 const Page = require('../models/Page');
 const User = require('../models/User');
-const { authMiddleware, requireRole } = require('../middleware/auth');
+const { authMiddleware } = require('../middleware/auth');
 const router = express.Router();
 
 const makeSlug = (titulo) =>
@@ -13,10 +13,7 @@ const makeSlug = (titulo) =>
 
 router.get('/', authMiddleware, async (req, res) => {
   try {
-    const where = {};
-    if (req.user.rol === 'lector') where.estado = 'publicado';
     const pages = await Page.findAll({
-      where,
       include: [{ model: User, as: 'autor', attributes: ['id', 'nombre'] }],
       order: [['createdAt', 'DESC']],
     });
@@ -38,9 +35,9 @@ router.get('/:id', authMiddleware, async (req, res) => {
   }
 });
 
-router.post('/', authMiddleware, requireRole('admin', 'editor'), async (req, res) => {
+router.post('/', authMiddleware, async (req, res) => {
   try {
-    const { titulo, contenido, estado, descripcion } = req.body;
+    const { titulo, contenido, estado, descripcion, url_externa } = req.body;
     if (!titulo) return res.status(400).json({ error: 'El título es requerido' });
 
     let slug = makeSlug(titulo);
@@ -49,7 +46,7 @@ router.post('/', authMiddleware, requireRole('admin', 'editor'), async (req, res
 
     const page = await Page.create({
       titulo, contenido, estado: estado || 'borrador',
-      slug, autor_id: req.user.id, descripcion,
+      slug, autor_id: req.user.id, descripcion, url_externa,
     });
     res.status(201).json(page);
   } catch (error) {
@@ -57,10 +54,13 @@ router.post('/', authMiddleware, requireRole('admin', 'editor'), async (req, res
   }
 });
 
-router.put('/:id', authMiddleware, requireRole('admin', 'editor'), async (req, res) => {
+router.put('/:id', authMiddleware, async (req, res) => {
   try {
     const page = await Page.findByPk(req.params.id);
     if (!page) return res.status(404).json({ error: 'Página no encontrada' });
+
+    if (req.user.rol !== 'admin' && page.autor_id !== req.user.id)
+      return res.status(403).json({ error: 'Solo puedes editar tus propias páginas' });
 
     if (req.body.titulo && req.body.titulo !== page.titulo) {
       let slug = makeSlug(req.body.titulo);
@@ -76,10 +76,14 @@ router.put('/:id', authMiddleware, requireRole('admin', 'editor'), async (req, r
   }
 });
 
-router.delete('/:id', authMiddleware, requireRole('admin'), async (req, res) => {
+router.delete('/:id', authMiddleware, async (req, res) => {
   try {
     const page = await Page.findByPk(req.params.id);
     if (!page) return res.status(404).json({ error: 'Página no encontrada' });
+
+    if (req.user.rol !== 'admin' && page.autor_id !== req.user.id)
+      return res.status(403).json({ error: 'Solo puedes eliminar tus propias páginas' });
+
     await page.destroy();
     res.json({ message: 'Página eliminada correctamente' });
   } catch {
