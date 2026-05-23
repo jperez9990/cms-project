@@ -23,6 +23,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use('/api/auth', require('./routes/auth'));
+app.use('/api/public', require('./routes/public'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/pages', require('./routes/pages'));
 app.use('/api/resources', require('./routes/resources'));
@@ -36,7 +37,6 @@ const start = async () => {
   try {
     await sequelize.authenticate();
     console.log('✅ Conexión a la base de datos establecida');
-
     await sequelize.sync({ alter: true });
     console.log('✅ Modelos sincronizados');
 
@@ -48,7 +48,7 @@ const start = async () => {
         password: process.env.ADMIN_PASSWORD || 'Admin1234!',
         rol: 'admin',
       });
-      console.log('✅ Usuario admin creado: admin@cms.com / Admin1234!');
+      console.log('✅ Usuario admin creado');
     }
 
     const configExists = await SiteConfig.findOne({ where: { clave: 'site_name' } });
